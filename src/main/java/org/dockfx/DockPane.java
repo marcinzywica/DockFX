@@ -533,8 +533,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
    * @param node The node that is to be removed from this dock pane.
    */
   void undock(DockNode node) {
-	if(!node.closedProperty().get())
-      undockedNodes.add(node);
+	undockedNodes.add(node);
 
     DockNodeEventHandler dockNodeEventHandler = dockNodeEventFilters.get(node);
     node.removeEventFilter(DockEvent.DOCK_OVER, dockNodeEventHandler);
@@ -705,7 +704,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
     contents
         .put("_FloatingNodes", new ContentHolder("_FloatingNodes", ContentHolder.Type.Collection));
 
-    List<DockNode> floatingNodes = new LinkedList<>(undockedNodes);
+    List<DockNode> floatingNodes = new LinkedList<>(undockedNodes.filtered(dockNode -> !dockNode.isClosed()));
 
     for (int i = 0; i < floatingNodes.size(); i++) {
 //		System.out.println(floatingNodes.get(i).getTitle());
@@ -738,12 +737,12 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
     checkPane(contents, pane, dockingNodes, count);
 
-    if (contents.containsKey("0")) {
-      contents.get("0").addProperty("Size",
-              new Double[] { this.getScene().getWindow().getWidth(), this.getScene().getWindow().getHeight() });
-      contents.get("0").addProperty("Position",
-              new Double[] { this.getScene().getWindow().getX(), this.getScene().getWindow().getY() });
-    }
+    contents.put("_MainWindow", new ContentHolder("_MainWindow", ContentHolder.Type.MainWindow));
+    contents.get("_MainWindow").addProperty("Size",
+            new Double[] { this.getScene().getWindow().getWidth(), this.getScene().getWindow().getHeight() });
+    contents.get("_MainWindow").addProperty("Position",
+            new Double[] { this.getScene().getWindow().getX(), this.getScene().getWindow().getY() });
+
     storeCollection(filePath, contents);
   }
 
@@ -843,10 +842,15 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
   private void closeAll(){
     HashMap<String, DockNode> dockNodes = new HashMap<>();
     collectDockNodes(dockNodes, (ContentPane) root);
+    LinkedList<DockNode> toClose = new LinkedList<>();
     dockNodes.forEach((s,dockNode) -> {
-      if(dockNode.isClosable()) undockedNodes.add(0, dockNode);
+      if(dockNode.isClosable()) toClose.add(0, dockNode);
     });
-    undockedNodes.forEach(dockNode -> dockNode.close());
+    toClose.forEach(dockNode -> dockNode.close());
+    undockedNodes.forEach(dockNode -> {
+      if(!dockNode.isClosed())
+        dockNode.close();
+    });
   }
 
   private void collectDockNodes(HashMap<String, DockNode> dockNodes, ContentPane pane) {
@@ -875,9 +879,9 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
     collectDockNodes(dockNodes, root);
 
-    if(contents.containsKey("0")) {
-      Double[] windowSize = (Double[]) contents.get("0").getProperties().get("Size");
-      Double[] windowPosition = (Double[]) contents.get("0").getProperties().get("Position");
+    if(contents.containsKey("_MainWindow")) {
+      Double[] windowSize = (Double[]) contents.get("_MainWindow").getProperties().get("Size");
+      Double[] windowPosition = (Double[]) contents.get("_MainWindow").getProperties().get("Position");
 
       Stage currentStage = (Stage) this.getScene().getWindow();
       currentStage.setX(windowPosition[0]);
@@ -908,7 +912,6 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
         node.getStage().setHeight(size[1]);
 
         dockNodes.remove(title);
-        undockedNodes.add(node);
         node.setFloating(true);
 
         node.setMinimized( minimized );
@@ -946,6 +949,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
             if (n.tabbedProperty().get()) {
               n.tabbedProperty().set(false);
             }
+            undockedNodes.remove(dockNodes.get(item));
             // FIXME docking/undocking/creating/closing windows here
 
             splitPane.getItems().add(dockNodes.get(item));

@@ -33,7 +33,11 @@ public class ContentHolder
 		/**
 		 * The DockNode.
 		 */
-		DockNode
+		DockNode,
+		/**
+		 * The MainWindow.
+		 */
+		MainWindow
 	}
 
 	String name;
