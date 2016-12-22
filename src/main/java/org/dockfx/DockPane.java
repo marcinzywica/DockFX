@@ -835,7 +835,21 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
         contents =
         (HashMap<String, ContentHolder>) loadCollection(filePath);
 
+    // FIXME rework loading preference
+    closeAll();
     applyPane(contents, (ContentPane) root, delayOpenHandler);
+  }
+
+  private void closeAll(){
+    HashMap<String, DockNode> dockNodes = new HashMap<>();
+    collectDockNodes(dockNodes, (ContentPane) root);
+    dockNodes.forEach((s,dockNode) -> {
+      if(dockNode.isClosable()) dockNode.close();
+    });
+    undockedNodes.forEach(dockNode -> dockNode.close());
+    dockNodes.forEach((s,dockNode) -> {
+      if(!dockNode.isClosable()) undockedNodes.add(dockNode);
+    });
   }
 
   private void collectDockNodes(HashMap<String, DockNode> dockNodes, ContentPane pane) {

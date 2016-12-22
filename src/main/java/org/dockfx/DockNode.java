@@ -315,6 +315,8 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
       }
     } else {
       this.getChildren().remove(this.dockTitleBar);
+      setClosable(false);
+      setFloatable(false);
     }
 
     this.dockTitleBar = dockTitleBar;
