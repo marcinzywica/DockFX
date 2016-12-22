@@ -20,27 +20,7 @@
 
 package org.dockfx;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
-
 import com.sun.javafx.css.StyleManager;
-
-import javafx.stage.Stage;
-
-import org.dockfx.pane.ContentPane;
-import org.dockfx.pane.ContentSplitPane;
-import org.dockfx.pane.ContentTabPane;
-import org.dockfx.pane.DockNodeTab;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -59,7 +39,20 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Popup;
+import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.dockfx.pane.ContentPane;
+import org.dockfx.pane.ContentSplitPane;
+import org.dockfx.pane.ContentTabPane;
+import org.dockfx.pane.DockNodeTab;
+
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Base class for a dock pane that provides the layout of the dock nodes. Stacking the dock nodes to
@@ -74,9 +67,9 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
    * The current root node of this dock pane's layout.
    */
   private Node root;
-  
-  /** 
-   * Whether or not this dock pane allows the docking of dock nodes from 
+
+  /**
+   * Whether or not this dock pane allows the docking of dock nodes from
    * external sources (i.e., other dock panes).
    */
   private boolean exclusive = false;
@@ -305,11 +298,11 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
   }
 
   /**
-   * Indicates whether or not the dock pane is in exclusive mode (the 
-   * default).  In exclusive mode, the dock pane ignores dock nodes 
+   * Indicates whether or not the dock pane is in exclusive mode (the
+   * default).  In exclusive mode, the dock pane ignores dock nodes
    * dragged from other dock panes, and dock nodes dragged from this dock pane
    * are ignored by other dock panes.
-   * @return true or false. 
+   * @return true or false.
    */
   public boolean isExclusive() {
     return exclusive;
@@ -597,7 +590,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
         return;
       }
     }
-        
+
     if (event.getEventType() == DockEvent.DOCK_ENTER) {
       if (!dockIndicatorOverlay.isShowing()) {
         Point2D originToScreen;
@@ -607,7 +600,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
         else {
             originToScreen = this.localToScreen(0, 0);
         }
-        
+
         dockIndicatorOverlay
             .show(DockPane.this, originToScreen.getX(), originToScreen.getY());
       }
@@ -745,11 +738,12 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
     checkPane(contents, pane, dockingNodes, count);
 
-    contents.get("0").addProperty("Size", new Double[]{this.getScene().getWindow().getWidth(),
-                                                       this.getScene().getWindow().getHeight()});
-    contents.get("0").addProperty("Position", new Double[]{this.getScene().getWindow().getX(),
-                                                           this.getScene().getWindow().getY()});
-
+    if (contents.containsKey("0")) {
+      contents.get("0").addProperty("Size",
+              new Double[] { this.getScene().getWindow().getWidth(), this.getScene().getWindow().getHeight() });
+      contents.get("0").addProperty("Position",
+              new Double[] { this.getScene().getWindow().getX(), this.getScene().getWindow().getY() });
+    }
     storeCollection(filePath, contents);
   }
 
@@ -807,6 +801,9 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
       holder.addProperty("SelectedIndex", tabPane.getSelectionModel().getSelectedIndex());
     }
 
+    if(pane == null)
+      return null;
+
     for (Node node : pane.getChildrenList()) {
       if (node instanceof DockNode) {
         dockingNodes.add((DockNode) node);
@@ -819,7 +816,9 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 //      }
 
       if (node instanceof ContentPane) {
-        holder.addChild(checkPane(contents, (ContentPane) node, dockingNodes, count));
+        ContentHolder contentHolder = checkPane(contents, (ContentPane) node, dockingNodes, count);
+        if(contentHolder != null)
+          holder.addChild(contentHolder);
       }
     }
 
@@ -840,6 +839,8 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
   }
 
   private void collectDockNodes(HashMap<String, DockNode> dockNodes, ContentPane pane) {
+    if(pane == null)
+      return;
     for (Node node : pane.getChildrenList()) {
       if (node instanceof DockNode) {
         dockNodes.put(((DockNode) node).getTitle(), (DockNode) node);
@@ -859,18 +860,21 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
     for (DockNode node : undockedNodes) {
       dockNodes.put(node.getTitle(), node);
     }
+    undockedNodes.clear();
 
     collectDockNodes(dockNodes, root);
 
-    Double[] windowSize = (Double[]) contents.get("0").getProperties().get("Size");
-    Double[] windowPosition = (Double[]) contents.get("0").getProperties().get("Position");
+    if(contents.containsKey("0")) {
+      Double[] windowSize = (Double[]) contents.get("0").getProperties().get("Size");
+      Double[] windowPosition = (Double[]) contents.get("0").getProperties().get("Position");
 
-    Stage currentStage = (Stage) this.getScene().getWindow();
-    currentStage.setX(windowPosition[0]);
-    currentStage.setY(windowPosition[1]);
+      Stage currentStage = (Stage) this.getScene().getWindow();
+      currentStage.setX(windowPosition[0]);
+      currentStage.setY(windowPosition[1]);
 
-    currentStage.setWidth(windowSize[0]);
-    currentStage.setHeight(windowSize[1]);
+      currentStage.setWidth(windowSize[0]);
+      currentStage.setHeight(windowSize[1]);
+    }
 
     // Set floating docks according to the preference data
     for (Object item : contents.get("_FloatingNodes").getChildren()) {
@@ -893,6 +897,8 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
         node.getStage().setHeight(size[1]);
 
         dockNodes.remove(title);
+        undockedNodes.add(node);
+        node.setFloating(true);
 
         node.setMinimized( minimized );
       }
@@ -903,11 +909,15 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
     // Restore dock location based on the preferences
     // Make it sorted
-    ContentHolder rootHolder = contents.get("0");
-    Node newRoot = buildPane(null, rootHolder, dockNodes, delayOpenHandler);
-
-    this.root = newRoot;
-    this.getChildren().set(0, this.root);
+    this.getChildren().clear();
+	  if(contents.containsKey("0")) {
+		  ContentHolder rootHolder = contents.get("0");
+		  Node newRoot = buildPane(null, rootHolder, dockNodes, delayOpenHandler);
+		  this.root = newRoot;
+		  this.getChildren().add(0, this.root);
+	  } else {
+		  this.root = null;
+	  }
   }
 
   private Node buildPane(ContentPane parent, ContentHolder holder, HashMap<String, DockNode> dockNodes, DelayOpenHandler delayOpenHandler) {
@@ -925,6 +935,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
             if (n.tabbedProperty().get()) {
               n.tabbedProperty().set(false);
             }
+            // FIXME docking/undocking/creating/closing windows here
 
             splitPane.getItems().add(dockNodes.get(item));
           }
