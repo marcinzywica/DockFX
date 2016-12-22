@@ -102,9 +102,9 @@ public class DockFX extends Application {
     DockNode tabsDock = new DockNode(tabs, "Tabs Dock", new ImageView(dockImage));
     tabsDock.setPrefSize(300, 100);
     tabsDock.dock(dockPane, DockPos.TOP);
-    DockNode tableDock = new DockNode(tableView);
+    DockNode tableDock = new DockNode(tableView, "Table Dock", new ImageView(dockImage));
     // let's disable our table from being undocked
-    tableDock.setDockTitleBar(null);
+    //tableDock.setDockTitleBar(null);
     tableDock.setPrefSize(300, 100);
     tableDock.dock(dockPane, DockPos.BOTTOM);
 
@@ -134,7 +134,7 @@ public class DockFX extends Application {
     mainBorderPane.setCenter(dockPane);
     
     // show that overlays are relative to the docking area
-    mainBorderPane.setLeft(new AnchorPane(generateRandomTree()));
+    //mainBorderPane.setLeft(new AnchorPane(generateRandomTree()));
     
     primaryStage.setScene(new Scene(mainBorderPane, 800, 500));
     primaryStage.sizeToScene();
