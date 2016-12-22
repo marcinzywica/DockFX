@@ -844,12 +844,9 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
     HashMap<String, DockNode> dockNodes = new HashMap<>();
     collectDockNodes(dockNodes, (ContentPane) root);
     dockNodes.forEach((s,dockNode) -> {
-      if(dockNode.isClosable()) dockNode.close();
+      if(dockNode.isClosable()) undockedNodes.add(0, dockNode);
     });
     undockedNodes.forEach(dockNode -> dockNode.close());
-    dockNodes.forEach((s,dockNode) -> {
-      if(!dockNode.isClosable()) undockedNodes.add(dockNode);
-    });
   }
 
   private void collectDockNodes(HashMap<String, DockNode> dockNodes, ContentPane pane) {
