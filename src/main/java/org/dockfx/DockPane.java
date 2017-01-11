@@ -49,10 +49,7 @@ import org.dockfx.pane.DockNodeTab;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Base class for a dock pane that provides the layout of the dock nodes. Stacking the dock nodes to
@@ -533,6 +530,8 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
    * @param node The node that is to be removed from this dock pane.
    */
   void undock(DockNode node) {
+    if(undockedNodes.contains(node))
+      return;
 	undockedNodes.add(node);
 
     DockNodeEventHandler dockNodeEventHandler = dockNodeEventFilters.get(node);
@@ -807,12 +806,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
       if (node instanceof DockNode) {
         dockingNodes.add((DockNode) node);
         holder.addChild(((DockNode) node).getTitle());
-//        System.out.println( ( ( DockNode ) node ).getTitle() );
       }
-//      else
-//      {
-//        System.out.println( node.getClass().getCanonicalName() );
-//      }
 
       if (node instanceof ContentPane) {
         ContentHolder contentHolder = checkPane(contents, (ContentPane) node, dockingNodes, count);
@@ -834,7 +828,6 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
         contents =
         (HashMap<String, ContentHolder>) loadCollection(filePath);
 
-    // FIXME rework loading preference
     closeAll();
     applyPane(contents, (ContentPane) root, delayOpenHandler);
   }
@@ -848,8 +841,9 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
     });
     toClose.forEach(dockNode -> dockNode.close());
     undockedNodes.forEach(dockNode -> {
-      if(!dockNode.isClosed())
+      if(!dockNode.isClosed()) {
         dockNode.close();
+      }
     });
   }
 
@@ -913,6 +907,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
         dockNodes.remove(title);
         node.setFloating(true);
+        node.closedProperty().setValue(false);
 
         node.setMinimized( minimized );
       }
@@ -924,14 +919,14 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
     // Restore dock location based on the preferences
     // Make it sorted
     this.getChildren().clear();
-	  if(contents.containsKey("0")) {
-		  ContentHolder rootHolder = contents.get("0");
-		  Node newRoot = buildPane(null, rootHolder, dockNodes, delayOpenHandler);
-		  this.root = newRoot;
-		  this.getChildren().add(0, this.root);
-	  } else {
-		  this.root = null;
-	  }
+    if(contents.containsKey("0")) {
+        ContentHolder rootHolder = contents.get("0");
+        Node newRoot = buildPane(null, rootHolder, dockNodes, delayOpenHandler);
+        this.root = newRoot;
+        this.getChildren().add(0, this.root);
+    } else {
+        this.root = null;
+    }
   }
 
   private Node buildPane(ContentPane parent, ContentHolder holder, HashMap<String, DockNode> dockNodes, DelayOpenHandler delayOpenHandler) {
@@ -950,8 +945,13 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
               n.tabbedProperty().set(false);
             }
             undockedNodes.remove(dockNodes.get(item));
-            // FIXME docking/undocking/creating/closing windows here
 
+            DockNodeEventHandler dockNodeEventHandler = this.new DockNodeEventHandler(n);
+            this.dockNodeEventFilters.put(n, dockNodeEventHandler);
+            n.addEventFilter(DockEvent.DOCK_OVER, dockNodeEventHandler);
+            n.setDockPane(this);
+            n.titleProperty().setValue((String)item);
+            n.closedProperty().setValue(false);
             splitPane.getItems().add(dockNodes.get(item));
           }
           else
@@ -981,6 +981,16 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
       for (Object item : holder.getChildren()) {
         if (item instanceof String) {
           // Use dock node
+          undockedNodes.remove(dockNodes.get(item));
+
+          DockNode n = dockNodes.get(item);
+          DockNodeEventHandler dockNodeEventHandler = this.new DockNodeEventHandler(n);
+          this.dockNodeEventFilters.put(n, dockNodeEventHandler);
+          n.addEventFilter(DockEvent.DOCK_OVER, dockNodeEventHandler);
+          n.setDockPane(this);
+          n.titleProperty().setValue((String)item);
+          n.closedProperty().setValue(false);
+
           if(dockNodes.containsKey(item)) {
             tabPane.addDockNodeTab(new DockNodeTab(dockNodes.get(item)));
           }
@@ -1006,4 +1016,5 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
     return pane;
   }
+
 }

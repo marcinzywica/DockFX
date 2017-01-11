@@ -151,7 +151,8 @@ public class DockFX extends Application {
     treeDock.dock(dockPane, DockPos.RIGHT);
 
 	// If you want to get notified when the docknode is closed. You can add ChangeListener to DockNode's closedProperty()
-	treeDock.closedProperty().addListener( new ChangeListener< Boolean >()
+	/*
+    treeDock.closedProperty().addListener( new ChangeListener< Boolean >()
 	{
 		@Override public void changed( ObservableValue< ? extends Boolean > observable, Boolean oldValue, Boolean newValue )
 		{
@@ -159,7 +160,7 @@ public class DockFX extends Application {
 				System.out.println("TreeDock(DockPos.RIGHT) is closed.");
 		}
 	} );
-
+    */
     // test the look and feel with both Caspian and Modena
     Application.setUserAgentStylesheet(Application.STYLESHEET_MODENA);
     // initialize the default styles for the dock pane and undocked nodes using the DockFX
