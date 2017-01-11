@@ -393,6 +393,10 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
     dockNodeEventFilters.put(node, dockNodeEventHandler);
     node.addEventFilter(DockEvent.DOCK_OVER, dockNodeEventHandler);
 
+    if (undockedNodes.contains(node)) {
+      undockedNodes.remove(node);
+    }
+    
     ContentPane pane = (ContentPane) root;
     if (pane == null) {
       pane = new ContentSplitPane(node);
@@ -506,10 +510,6 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
     // Add a node to the proper pane
     pane.addNode(root, sibling, node, dockPos);
-
-    if (undockedNodes.contains(node)) {
-      undockedNodes.remove(node);
-    }
   }
 
   /**

@@ -425,7 +425,7 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
       // while it is floating to offset it by the drop shadow
       // this way it pops out above exactly where it was when docked
       this.floatingProperty.set(floating);
-      this.setMinimizable(floating);
+      //this.setMinimizable(floating);
       this.applyCss();
 
       // apply the border pane css so that we can get the insets and
@@ -470,7 +470,7 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
       stage.show();
     } else if (!floating && this.isFloating()) {
       this.floatingProperty.set(floating);
-      this.setMinimizable(floating);
+      //this.setMinimizable(floating);
 
       stage.removeEventFilter(MouseEvent.MOUSE_PRESSED, this);
       stage.removeEventFilter(MouseEvent.MOUSE_MOVED, this);
