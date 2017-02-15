@@ -452,6 +452,7 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 
       this.pickEventTarget(new Point2D(event.getScreenX(), event.getScreenY()), eventTask,
           dockExitEvent);
+      stage.toFront();
     } else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
       dragging = false;
 

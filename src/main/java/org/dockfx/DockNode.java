@@ -370,10 +370,6 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		});
 
       stage.titleProperty().bind(titleProperty);
-      if (dockPane != null && dockPane.getScene() != null
-          && dockPane.getScene().getWindow() != null) {
-        stage.initOwner(dockPane.getScene().getWindow());
-      }
 
       stage.initStyle(stageStyle);
 
