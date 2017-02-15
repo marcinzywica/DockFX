@@ -153,7 +153,9 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
         }
       }
     } );
-    getChildren().addAll( label, fillPane, stateButton, closeButton );
+    getChildren().addAll( label, fillPane,minimizeButton, stateButton, closeButton );
+    minimizeButton.visibleProperty().bind(dockNode.floatingProperty());
+    minimizeButton.managedProperty().bind(minimizeButton.visibleProperty());
   }
 
   /**
