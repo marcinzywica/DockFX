@@ -378,7 +378,7 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
       // on where the mouse was clicked
       Point2D stagePosition;
       boolean translateToCenter = false;
-      if (this.isDecorated()) {
+      if (this.isDecorated() && stage.getOwner()!=null) {
         Window owner = stage.getOwner();
         stagePosition = floatScene.add(new Point2D(owner.getX(), owner.getY()));
       } else if (floatScreen != null) {
@@ -727,7 +727,7 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
     return minimizableProperty;
   }
   
-  private BooleanProperty minimizableProperty = new SimpleBooleanProperty(false){
+  private BooleanProperty minimizableProperty = new SimpleBooleanProperty(true){
     @Override
     public String getName() {
         return "minimizable";
