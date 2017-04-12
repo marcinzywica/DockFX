@@ -945,6 +945,10 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
     }
   }
 
+  public DockNodeTab getNodeTab() {
+    return dockNodeTab;
+  }
+
   private DockNodeTab dockNodeTab;
   public void setNodeTab( DockNodeTab nodeTab )
   {
