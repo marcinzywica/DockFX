@@ -1156,7 +1156,7 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		}
 	}
 
-	public void dockBack() {
+	public DockNode dockBack() {
 
 		DockPos position = lastDockPos;
 		Node sibling = lastDockSibling;
@@ -1186,5 +1186,18 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		} else {
 			dock(dockPane, DockPos.RIGHT);
 		}
+
+		return this;
+	}
+
+	public DockNode addOnCloseHandler(Runnable onClose) {
+		if (onClose != null) {
+			this.closableProperty.addListener((o, ov, nv) -> {
+				if (nv) {
+					onClose.run();
+				}
+			});
+		}
+		return this;
 	}
 }
