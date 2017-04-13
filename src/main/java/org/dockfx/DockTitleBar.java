@@ -23,8 +23,6 @@ package org.dockfx;
 import java.util.HashMap;
 import java.util.Stack;
 
-import com.sun.javafx.stage.StageHelper;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -263,11 +261,13 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 	 *            The explicit event to be fired on the stage root when no event
 	 *            target is found.
 	 */
+	@SuppressWarnings("restriction")
 	private void pickEventTarget(Point2D location, EventTask eventTask, Event explicit) {
 		// RFE for public scene graph traversal API filed but closed:
 		// https://bugs.openjdk.java.net/browse/JDK-8133331
 
-		ObservableList<Stage> stages = FXCollections.unmodifiableObservableList(StageHelper.getStages());
+		ObservableList<Stage> stages = FXCollections
+				.unmodifiableObservableList(com.sun.javafx.stage.StageHelper.getStages());
 		// fire the dock over event for the active stages
 		for (Stage targetStage : stages) {
 			// obviously this title bar does not need to receive its own events

@@ -8,8 +8,7 @@ import java.util.Properties;
  *
  * @author HongKee Moon
  */
-public class ContentHolder
-{
+public class ContentHolder {
 	/**
 	 * The enum ContentHolder Type.
 	 */
@@ -42,69 +41,57 @@ public class ContentHolder
 
 	String name;
 	Properties properties;
-	LinkedList children;
+	LinkedList<Object> children;
 	Type type;
 
-	public ContentHolder()
-	{
+	public ContentHolder() {
 
 	}
 
-	public ContentHolder( String name, Type type )
-	{
+	public ContentHolder(String name, Type type) {
 		this.name = name;
 		this.properties = new Properties();
-		this.children = new LinkedList();
+		this.children = new LinkedList<>();
 		this.type = type;
 	}
 
-	public void addProperty( Object key, Object value )
-	{
-		properties.put( key, value );
+	public void addProperty(Object key, Object value) {
+		properties.put(key, value);
 	}
 
-	public void addChild( Object child )
-	{
-		children.add( child );
+	public void addChild(Object child) {
+		children.add(child);
 	}
 
-	public String getName()
-	{
+	public String getName() {
 		return name;
 	}
 
-	public void setName( String name )
-	{
+	public void setName(String name) {
 		this.name = name;
 	}
 
-	public Properties getProperties()
-	{
+	public Properties getProperties() {
 		return properties;
 	}
 
-	public void setProperties( Properties properties )
-	{
+	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
 
-	public LinkedList getChildren()
-	{
+	public LinkedList<Object> getChildren() {
 		return children;
 	}
 
-	public void setChildren( LinkedList children )
-	{
+	public void setChildren(LinkedList<Object> children) {
 		this.children = children;
 	}
 
-	public Type getType()
-	{
+	public Type getType() {
 		return type;
 	}
 
-	public void setType( Type type )
-	{
+	public void setType(Type type) {
 		this.type = type;
 	}
 }

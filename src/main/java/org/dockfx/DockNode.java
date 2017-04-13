@@ -610,8 +610,9 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		return graphicProperty.get();
 	}
 
-	public final void setGraphic(Node graphic) {
+	public final DockNode setGraphic(Node graphic) {
 		this.graphicProperty.setValue(graphic);
+		return this;
 	}
 
 	/**
@@ -635,8 +636,9 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		return titleProperty.get();
 	}
 
-	public final void setTitle(String title) {
+	public final DockNode setTitle(String title) {
 		this.titleProperty.setValue(title);
+		return this;
 	}
 
 	/**
@@ -993,6 +995,20 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		this.lastDockPos = dockPos;
 	}
 
+	public void dock(DockPane dockPane) {
+		Node sibling;
+		DockPos position;
+		Node firstChild = getFirstChild();
+		if (firstChild != null) {
+			sibling = firstChild;
+			position = DockPos.CENTER;
+		} else {
+			sibling = dockPane.getRoot();
+			position = DockPos.RIGHT;
+		}
+		dock(dockPane, position, sibling);
+	}
+
 	private final void dockImpl(DockPane dockPane) {
 		if (isFloating()) {
 			setFloating(false);
@@ -1023,12 +1039,12 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 	 * detached from any dock pane.
 	 */
 	public void close() {
-		this.closedProperty.set(true);
 		if (isFloating()) {
 			setFloating(false);
 		} else if (isDocked()) {
 			undock();
 		}
+		this.closedProperty.set(true);
 	}
 
 	public DockNodeTab getNodeTab() {
@@ -1161,23 +1177,15 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		DockPos position = lastDockPos;
 		Node sibling = lastDockSibling;
 
-		if (sibling == null || (sibling instanceof DockNode && ((DockNode) sibling).isFloating())) {
-			Node root = dockPane.getRoot();
-
-			sibling = dockPane.getRoot();
-			position = DockPos.RIGHT;
-			if (root instanceof ContentSplitPane) {
-				List<Node> children = ((ContentSplitPane) root).getChildrenList();
-				if (children.size() == 1) {
-					Node child = children.get(0);
-					if (child instanceof ContentTabPane) {
-						sibling = ((ContentTabPane) child).getChildrenList().get(0);
-						position = DockPos.CENTER;
-					} else if (child instanceof DockNode) {
-						sibling = child;
-						position = DockPos.CENTER;
-					}
-				}
+		if (sibling == null || (sibling instanceof DockNode
+				&& (((DockNode) sibling).isFloating() || ((DockNode) sibling).isClosed()))) {
+			Node firstChild = getFirstChild();
+			if (firstChild != null) {
+				sibling = firstChild;
+				position = DockPos.CENTER;
+			} else {
+				sibling = dockPane.getRoot();
+				position = DockPos.RIGHT;
 			}
 		}
 
@@ -1190,13 +1198,48 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		return this;
 	}
 
+	private Node getFirstChild() {
+		Node root = dockPane.getRoot();
+
+		if (root instanceof ContentSplitPane) {
+			List<Node> children = ((ContentSplitPane) root).getChildrenList();
+			if (children.size() == 1) {
+				Node child = children.get(0);
+				if (child instanceof ContentTabPane) {
+					return ((ContentTabPane) child).getChildrenList().get(0);
+				} else if (child instanceof DockNode) {
+					return child;
+				}
+			}
+		}
+		return null;
+	}
+
 	public DockNode addOnCloseHandler(Runnable onClose) {
 		if (onClose != null) {
-			this.closableProperty.addListener((o, ov, nv) -> {
+			this.closedProperty.addListener((o, ov, nv) -> {
 				if (nv) {
 					onClose.run();
 				}
 			});
+		}
+		return this;
+	}
+
+	public DockNode replaceWith(DockNode mainNode) {
+		if (!isClosed()) {
+			if (isFloating()) {
+				mainNode.setFloating(true);
+				mainNode.setFloatingWidth(this.stage.getWidth());
+				mainNode.setFloatingHeight(this.stage.getHeight());
+				mainNode.stage.setX(this.stage.getX());
+				mainNode.stage.setY(this.stage.getY());
+			} else {
+				mainNode.dock(dockPane, DockPos.CENTER, this);
+			}
+			this.close();
+			mainNode.closedProperty().setValue(false);
+			((Stage) dockPane.getScene().getWindow()).toFront();
 		}
 		return this;
 	}
