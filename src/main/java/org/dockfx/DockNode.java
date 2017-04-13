@@ -1158,7 +1158,6 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 
 	public void dockBack() {
 
-		System.out.println("root: " + dockPane.getRoot());
 		DockPos position = lastDockPos;
 		Node sibling = lastDockSibling;
 
