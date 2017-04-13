@@ -48,6 +48,11 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+
+import java.util.List;
+
+import org.dockfx.pane.ContentSplitPane;
+import org.dockfx.pane.ContentTabPane;
 import org.dockfx.pane.DockNodeTab;
 
 /**
@@ -1148,6 +1153,39 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 			if (sizeNorth || sizeSouth || sizeWest || sizeEast) {
 				event.consume();
 			}
+		}
+	}
+
+	public void dockBack() {
+
+		System.out.println("root: " + dockPane.getRoot());
+		DockPos position = lastDockPos;
+		Node sibling = lastDockSibling;
+
+		if (sibling == null || (sibling instanceof DockNode && ((DockNode) sibling).isFloating())) {
+			Node root = dockPane.getRoot();
+
+			sibling = dockPane.getRoot();
+			position = DockPos.RIGHT;
+			if (root instanceof ContentSplitPane) {
+				List<Node> children = ((ContentSplitPane) root).getChildrenList();
+				if (children.size() == 1) {
+					Node child = children.get(0);
+					if (child instanceof ContentTabPane) {
+						sibling = ((ContentTabPane) child).getChildrenList().get(0);
+						position = DockPos.CENTER;
+					} else if (child instanceof DockNode) {
+						sibling = child;
+						position = DockPos.CENTER;
+					}
+				}
+			}
+		}
+
+		if (sibling != null) {
+			dock(dockPane, position, sibling);
+		} else {
+			dock(dockPane, DockPos.RIGHT);
 		}
 	}
 }

@@ -175,6 +175,11 @@
   -fx-graphic: url(close.png);
 }
 
+
+.dock-back-button {
+  -fx-graphic: url(back.png);
+}
+
 .dock-minimize-button {
   -fx-graphic: url(minimize.png);
 }
