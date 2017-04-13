@@ -519,9 +519,11 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 	 * 
 	 * @param floating
 	 *            Whether the node is currently floating.
+	 * @return
 	 */
-	public void setFloating(boolean floating) {
+	public DockNode setFloating(boolean floating) {
 		setFloating(floating, null, dockPane);
+		return this;
 	}
 
 	/**
@@ -632,6 +634,12 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		this.titleProperty.setValue(title);
 	}
 
+	/**
+	 * Boolean property maintaining bidirectional state of the name stored in
+	 * the setting files
+	 * 
+	 * @defaultValue "Dock"
+	 */
 	private StringProperty settingNameProperty = new SimpleStringProperty("Dock");
 
 	public final StringProperty settingNameProperty() {
@@ -933,6 +941,20 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 
 	public Node getLastDockSibling() {
 		return lastDockSibling;
+	}
+
+	public DockNode setFloatingWidth(double width) {
+		if (stage != null) {
+			stage.setWidth(width);
+		}
+		return this;
+	}
+
+	public DockNode setFloatingHeight(double height) {
+		if (stage != null) {
+			stage.setHeight(height);
+		}
+		return this;
 	}
 
 	/**
