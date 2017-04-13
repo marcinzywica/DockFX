@@ -20,7 +20,6 @@
 
 package org.dockfx;
 
-import com.sun.javafx.css.StyleManager;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -59,12 +58,17 @@ import java.util.*;
  *
  * @since DockFX 0.1
  */
+
 public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
 	/**
 	 * The current root node of this dock pane's layout.
 	 */
 	private Node root;
+
+	public Node getRoot() {
+		return root;
+	}
 
 	/**
 	 * Whether or not this dock pane allows the docking of dock nodes from
@@ -347,8 +351,10 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 	 * Helper function to add the default style sheet of DockFX to the user
 	 * agent style sheets.
 	 */
+	@SuppressWarnings("restriction")
 	public final static void initializeDefaultUserAgentStylesheet() {
-		StyleManager.getInstance().addUserAgentStylesheet(DockPane.class.getResource("default.css").toExternalForm());
+		com.sun.javafx.css.StyleManager.getInstance()
+				.addUserAgentStylesheet(DockPane.class.getResource("default.css").toExternalForm());
 	}
 
 	/**
@@ -820,6 +826,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 		loadPreference(filePath, null);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void loadPreference(String filePath, DelayOpenHandler delayOpenHandler) {
 		HashMap<String, ContentHolder> contents = (HashMap<String, ContentHolder>) loadCollection(filePath);
 
