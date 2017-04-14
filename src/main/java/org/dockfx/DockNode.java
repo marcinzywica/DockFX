@@ -33,6 +33,7 @@ import javafx.css.PseudoClass;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
@@ -51,6 +52,8 @@ import javafx.stage.Window;
 
 import java.util.List;
 
+import org.dockfx.pane.ContentPane;
+import org.dockfx.pane.ContentPane.Type;
 import org.dockfx.pane.ContentSplitPane;
 import org.dockfx.pane.ContentTabPane;
 import org.dockfx.pane.DockNodeTab;
@@ -310,6 +313,41 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		VBox.setVgrow(contents, Priority.ALWAYS);
 
 		this.getStyleClass().add("dock-node");
+	}
+
+	ContentPane parent;
+
+	void refreshLastPosition(ContentPane parent) {
+		this.parent = parent;
+		DockPos position;
+		if (parent instanceof ContentSplitPane) {
+			ContentSplitPane splitPane = (ContentSplitPane) parent;
+			boolean isFirst = parent.getChildrenList().get(0) == this;
+
+			if (splitPane.getOrientation() == Orientation.HORIZONTAL) {
+				if (isFirst) {
+					position = DockPos.LEFT;
+				} else {
+					position = DockPos.RIGHT;
+				}
+			} else {
+				if (isFirst) {
+					position = DockPos.TOP;
+				} else {
+					position = DockPos.BOTTOM;
+				}
+			}
+
+		} else {
+			position = DockPos.CENTER;
+		}
+
+		lastDockPos = position;
+		if (parent.getChildrenList().size() == 0) {
+			lastDockSibling = parent.getChildrenList().get(0);
+		} else {
+			lastDockSibling = parent.getChildrenList().stream().filter(n -> n != this).findFirst().orElse(this);
+		}
 	}
 
 	/**
@@ -1193,6 +1231,11 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 			dock(dockPane, position, sibling);
 		} else {
 			dock(dockPane, DockPos.RIGHT);
+		}
+
+		if (sibling == lastDockSibling && parent != null && parent.getType() == Type.SplitPane) {
+			ContentSplitPane splitPane = (ContentSplitPane) parent;
+			splitPane.resetDividerPositions();
 		}
 
 		return this;

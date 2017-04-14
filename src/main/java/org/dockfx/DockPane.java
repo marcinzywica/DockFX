@@ -525,6 +525,19 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
 		// Add a node to the proper pane
 		pane.addNode(root, sibling, node, dockPos);
+		refreshDocksLastPosition((ContentPane) root);
+	}
+
+	private void refreshDocksLastPosition(ContentPane pane) {
+		if (pane == null)
+			return;
+		pane.getChildrenList().forEach(node -> {
+			if (node instanceof DockNode) {
+				((DockNode) node).refreshLastPosition(pane);
+			} else if (node instanceof ContentPane) {
+				refreshDocksLastPosition((ContentPane) node);
+			}
+		});
 	}
 
 	/**
@@ -588,7 +601,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 				}
 			}
 		}
-
+		refreshDocksLastPosition((ContentPane) root);
 	}
 
 	@Override
@@ -824,6 +837,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
 	public void loadPreference(String filePath) {
 		loadPreference(filePath, null);
+		refreshDocksLastPosition((ContentPane) root);
 	}
 
 	@SuppressWarnings("unchecked")
