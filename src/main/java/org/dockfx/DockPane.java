@@ -1013,7 +1013,6 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 						this.dockNodeEventFilters.put(n, dockNodeEventHandler);
 						n.addEventFilter(DockEvent.DOCK_OVER, dockNodeEventHandler);
 						n.setDockPane(this);
-						n.titleProperty().setValue((String) item);
 						tabPane.addDockNodeTab(new DockNodeTab(dockNodes.get(item)));
 						n.closedProperty().setValue(false);
 					} else {
