@@ -34,7 +34,9 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -58,12 +60,14 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 	/**
 	 * The label node used for captioning and the graphic.
 	 */
-	private final Label label;
+
 	/**
 	 * State manipulation buttons including close, maximize, detach, and
 	 * restore.
 	 */
-	private final Button closeButton, stateButton, minimizeButton, backButton;
+	private final Button closeButton, stateButton, minimizeButton, backButton, listButton;
+
+	private ContextMenu contextMenu;
 
 	/**
 	 * Creates a default DockTitleBar with captions and dragging behavior.
@@ -74,7 +78,7 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 	public DockTitleBar(DockNode dockNode) {
 		this.dockNode = dockNode;
 
-		label = new Label("Dock Title Bar");
+		Label label = new Label("Dock Title Bar");
 		label.textProperty().bind(dockNode.titleProperty());
 		label.graphicProperty().bind(dockNode.graphicProperty());
 
@@ -96,6 +100,14 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 		backButton = new Button();
 		backButton.setOnAction(e -> dockNode.dockBack());
 
+		listButton = new Button();
+		listButton.setVisible(false);
+		listButton.setOnMouseClicked(e -> {
+			if (contextMenu != null && e.getButton() == MouseButton.PRIMARY) {
+				contextMenu.show(label, e.getScreenX(), e.getScreenY());
+			}
+		});
+
 		this.addEventHandler(MouseEvent.MOUSE_PRESSED, this);
 		this.addEventHandler(MouseEvent.DRAG_DETECTED, this);
 		this.addEventHandler(MouseEvent.MOUSE_DRAGGED, this);
@@ -106,6 +118,7 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 		stateButton.getStyleClass().add("dock-state-button");
 		minimizeButton.getStyleClass().add("dock-minimize-button");
 		backButton.getStyleClass().add("dock-back-button");
+		listButton.getStyleClass().add("dock-list-button");
 		this.getStyleClass().add("dock-title-bar");
 
 		// create a pane that will stretch to make the buttons right aligned
@@ -124,10 +137,21 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 			}
 		});
 
-		getChildren().addAll(label, fillPane, backButton, minimizeButton, stateButton, closeButton);
+		getChildren().addAll(listButton, label, fillPane, backButton, minimizeButton, stateButton, closeButton);
 		minimizeButton.visibleProperty().bind(dockNode.floatingProperty());
 		minimizeButton.managedProperty().bind(minimizeButton.visibleProperty());
 		backButton.visibleProperty().bind(dockNode.floatingProperty());
+		listButton.managedProperty().bind(listButton.visibleProperty());
+	}
+
+	void addMenuItem(MenuItem... menuItems) {
+		if (contextMenu == null) {
+			contextMenu = new ContextMenu(menuItems);
+			contextMenu.setAutoHide(true);
+			listButton.setVisible(true);
+		} else {
+			contextMenu.getItems().addAll(menuItems);
+		}
 	}
 
 	/**
@@ -137,15 +161,6 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 	 */
 	public final boolean isDragging() {
 		return dragging;
-	}
-
-	/**
-	 * The label used for captioning and to provide a graphic.
-	 *
-	 * @return The label used for captioning and to provide a graphic.
-	 */
-	public final Label getLabel() {
-		return label;
 	}
 
 	/**

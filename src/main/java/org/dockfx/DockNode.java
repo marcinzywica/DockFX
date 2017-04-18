@@ -30,6 +30,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.css.PseudoClass;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -40,6 +41,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
@@ -1285,5 +1287,16 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 			((Stage) dockPane.getScene().getWindow()).toFront();
 		}
 		return this;
+	}
+
+	public DockNode addMenuItem(MenuItem... menuItems) {
+		dockTitleBar.addMenuItem(menuItems);
+		return this;
+	}
+
+	public DockNode addMenuItem(String title, EventHandler<ActionEvent> event) {
+		MenuItem menuItem = new MenuItem(title);
+		menuItem.setOnAction(event);
+		return addMenuItem(menuItem);
 	}
 }
