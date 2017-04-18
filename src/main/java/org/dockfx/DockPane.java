@@ -205,6 +205,10 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
 	private ObservableList<DockNode> undockedNodes;
 
+	public List<DockNode> getUndockedNodes() {
+		return undockedNodes;
+	}
+
 	/**
 	 * Creates a new DockPane adding event handlers for dock events and creating
 	 * the indicator overlays.
@@ -1036,4 +1040,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 		return pane;
 	}
 
+	public void remove(DockNode dockNode) {
+		undockedNodes.remove(dockNode);
+	}
 }
