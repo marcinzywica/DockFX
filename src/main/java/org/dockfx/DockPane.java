@@ -736,7 +736,8 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 		// Floating Nodes collection
 		contents.put("_FloatingNodes", new ContentHolder("_FloatingNodes", ContentHolder.Type.Collection));
 
-		List<DockNode> floatingNodes = new LinkedList<>(undockedNodes.filtered(dockNode -> !dockNode.isClosed()));
+		List<DockNode> floatingNodes = new LinkedList<>(
+				undockedNodes.filtered(dockNode -> !dockNode.isClosed() && !dockNode.isIgnoreStore()));
 
 		for (int i = 0; i < floatingNodes.size(); i++) {
 			ContentHolder floatingNode = new ContentHolder(floatingNodes.get(i).getSettingName(),
@@ -824,7 +825,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 			return null;
 
 		for (Node node : pane.getChildrenList()) {
-			if (node instanceof DockNode) {
+			if (node instanceof DockNode && !((DockNode) node).isIgnoreStore()) {
 				dockingNodes.add((DockNode) node);
 				holder.addChild(((DockNode) node).getSettingName());
 			}

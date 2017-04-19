@@ -566,8 +566,15 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 	 *            Whether the node is currently floating.
 	 * @return
 	 */
+	boolean setFloated;
+
 	public DockNode setFloating(boolean floating) {
 		setFloating(floating, null, dockPane);
+		if (!setFloated) {
+			setFloated = true;
+			stage.setWidth(floatingWidth);
+			stage.setHeight(floatingHeight);
+		}
 		return this;
 	}
 
@@ -990,7 +997,11 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		return lastDockSibling;
 	}
 
+	private double floatingWidth = 500.0;
+	private double floatingHeight = 500.0;
+
 	public DockNode setFloatingWidth(double width) {
+		this.floatingWidth = width;
 		if (stage != null) {
 			stage.setWidth(width);
 		}
@@ -998,7 +1009,16 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 	}
 
 	public DockNode setFloatingHeight(double height) {
+		this.floatingHeight = height;
 		if (stage != null) {
+			stage.setHeight(height);
+		}
+		return this;
+	}
+
+	public DockNode setFloatingSize(double width, double height) {
+		if (stage != null) {
+			stage.setWidth(width);
 			stage.setHeight(height);
 		}
 		return this;
@@ -1013,12 +1033,14 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 	 *            The docking position relative to the sibling of the dock pane.
 	 * @param sibling
 	 *            The sibling node to dock this node relative to.
+	 * @return
 	 */
-	public void dock(DockPane dockPane, DockPos dockPos, Node sibling) {
+	public DockNode dock(DockPane dockPane, DockPos dockPos, Node sibling) {
 		dockImpl(dockPane);
 		dockPane.dock(this, dockPos, sibling);
 		this.lastDockPos = dockPos;
 		this.lastDockSibling = sibling;
+		return this;
 	}
 
 	/**
@@ -1028,14 +1050,16 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 	 *            The dock pane to dock this node into.
 	 * @param dockPos
 	 *            The docking position relative to the sibling of the dock pane.
+	 * @return
 	 */
-	public void dock(DockPane dockPane, DockPos dockPos) {
+	public DockNode dock(DockPane dockPane, DockPos dockPos) {
 		dockImpl(dockPane);
 		dockPane.dock(this, dockPos);
 		this.lastDockPos = dockPos;
+		return this;
 	}
 
-	public void dock(DockPane dockPane) {
+	public DockNode dock(DockPane dockPane) {
 		Node sibling;
 		DockPos position;
 		Node firstChild = getFirstChild();
@@ -1046,7 +1070,7 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 			sibling = dockPane.getRoot();
 			position = DockPos.RIGHT;
 		}
-		dock(dockPane, position, sibling);
+		return dock(dockPane, position, sibling);
 	}
 
 	private final void dockImpl(DockPane dockPane) {
@@ -1085,6 +1109,9 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 			undock();
 		}
 		this.closedProperty.set(true);
+		if (isRemoveOnClose()) {
+			dockPane.remove(this);
+		}
 	}
 
 	public DockNodeTab getNodeTab() {
@@ -1298,5 +1325,35 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		MenuItem menuItem = new MenuItem(title);
 		menuItem.setOnAction(event);
 		return addMenuItem(menuItem);
+	}
+
+	private BooleanProperty ignoreStoreProperty = new SimpleBooleanProperty(false);
+
+	public BooleanProperty ignoreStoreProperty() {
+		return ignoreStoreProperty;
+	}
+
+	public boolean isIgnoreStore() {
+		return ignoreStoreProperty.get();
+	}
+
+	public DockNode setIgnoreStore(boolean ignoreStore) {
+		ignoreStoreProperty.set(ignoreStore);
+		return this;
+	}
+
+	private BooleanProperty removeOnCloseProperty = new SimpleBooleanProperty(false);
+
+	public BooleanProperty removeOnCloseProperty() {
+		return removeOnCloseProperty;
+	}
+
+	public boolean isRemoveOnClose() {
+		return removeOnCloseProperty.get();
+	}
+
+	public DockNode setRemoveOnClose(boolean removeOnClose) {
+		removeOnCloseProperty.set(removeOnClose);
+		return this;
 	}
 }
