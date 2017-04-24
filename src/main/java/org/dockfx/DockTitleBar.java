@@ -27,6 +27,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -65,9 +66,11 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 	 * State manipulation buttons including close, maximize, detach, and
 	 * restore.
 	 */
-	private final Button closeButton, stateButton, minimizeButton, backButton, listButton;
+	private final Button closeButton, stateButton, minimizeButton, backButton, listButton, renameBtn;
 
 	private ContextMenu contextMenu;
+
+	private EventHandler<ActionEvent> renameAE;
 
 	/**
 	 * Creates a default DockTitleBar with captions and dragging behavior.
@@ -87,7 +90,7 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 			if (dockNode.isFloating()) {
 				dockNode.setMaximized(!dockNode.isMaximized());
 			} else {
-				dockNode.setFloating(true);
+				dockNode.setFloating(true, null, dockNode.getDockPane());
 			}
 		});
 
@@ -108,6 +111,14 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 			}
 		});
 
+		renameBtn = new Button();
+		renameBtn.setOnAction(e -> {
+			if (renameAE == null)
+				dockNode.rename();
+			else
+				renameAE.handle(e);
+		});
+
 		this.addEventHandler(MouseEvent.MOUSE_PRESSED, this);
 		this.addEventHandler(MouseEvent.DRAG_DETECTED, this);
 		this.addEventHandler(MouseEvent.MOUSE_DRAGGED, this);
@@ -119,6 +130,7 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 		minimizeButton.getStyleClass().add("dock-minimize-button");
 		backButton.getStyleClass().add("dock-back-button");
 		listButton.getStyleClass().add("dock-list-button");
+		renameBtn.getStyleClass().add("rename-button");
 		this.getStyleClass().add("dock-title-bar");
 
 		// create a pane that will stretch to make the buttons right aligned
@@ -137,7 +149,8 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 			}
 		});
 
-		getChildren().addAll(listButton, label, fillPane, backButton, minimizeButton, stateButton, closeButton);
+		getChildren().addAll(listButton, label, fillPane, backButton, renameBtn, minimizeButton, stateButton,
+				closeButton);
 		minimizeButton.visibleProperty().bind(dockNode.floatingProperty());
 		minimizeButton.managedProperty().bind(minimizeButton.visibleProperty());
 		backButton.visibleProperty().bind(dockNode.floatingProperty());
@@ -161,6 +174,10 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 	 */
 	public final boolean isDragging() {
 		return dragging;
+	}
+
+	public void setOnRenameAction(EventHandler<ActionEvent> renameAE) {
+		this.renameAE = renameAE;
 	}
 
 	/**

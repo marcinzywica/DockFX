@@ -42,6 +42,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
@@ -1355,5 +1356,33 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 	public DockNode setRemoveOnClose(boolean removeOnClose) {
 		removeOnCloseProperty.set(removeOnClose);
 		return this;
+	}
+
+	private boolean titleRenamed;
+
+	public boolean isTitleRenamed() {
+		return titleRenamed;
+	}
+
+	public DockNode setOnRenameAction(EventHandler<ActionEvent> renameAE) {
+		this.dockTitleBar.setOnRenameAction(renameAE);
+		return this;
+	}
+
+	public void rename() {
+		TextInputDialog dialog = new TextInputDialog();
+		dialog.setTitle("Zmiana nazwy panel");
+		dialog.setHeaderText("Podaj nową nazwę");
+		dialog.setContentText("Nazwa");
+		dialog.showAndWait().ifPresent(e -> {
+			if (e.length() > 0) {
+				rename(e);
+			}
+		});
+	}
+
+	public void rename(String title) {
+		setTitle(title);
+		titleRenamed = true;
 	}
 }

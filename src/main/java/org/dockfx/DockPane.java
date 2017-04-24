@@ -40,6 +40,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import org.dockfx.model.DockNodeProperty;
 import org.dockfx.pane.ContentPane;
 import org.dockfx.pane.ContentSplitPane;
 import org.dockfx.pane.ContentTabPane;
@@ -742,7 +744,8 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 		for (int i = 0; i < floatingNodes.size(); i++) {
 			ContentHolder floatingNode = new ContentHolder(floatingNodes.get(i).getSettingName(),
 					ContentHolder.Type.FloatingNode);
-			floatingNode.addProperty("Title", floatingNodes.get(i).getSettingName());
+			floatingNode.addProperty("Title", floatingNodes.get(i).getTitle());
+			floatingNode.addProperty("SettingName", floatingNodes.get(i).getSettingName());
 			floatingNode.addProperty("Size", new Double[] { floatingNodes.get(i).getLayoutBounds().getWidth(),
 					floatingNodes.get(i).getLayoutBounds().getHeight() });
 			floatingNode.addProperty("Minimized", floatingNodes.get(i).isMinimized());
@@ -827,7 +830,7 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 		for (Node node : pane.getChildrenList()) {
 			if (node instanceof DockNode && !((DockNode) node).isIgnoreStore()) {
 				dockingNodes.add((DockNode) node);
-				holder.addChild(((DockNode) node).getSettingName());
+				holder.addChild(new DockNodeProperty((DockNode) node));
 			}
 
 			if (node instanceof ContentPane) {
@@ -907,13 +910,14 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 		// Set floating docks according to the preference data
 		for (Object item : contents.get("_FloatingNodes").getChildren()) {
 			ContentHolder holder = (ContentHolder) item;
+			String settingName = holder.getProperties().getProperty("SettingName");
 			String title = holder.getProperties().getProperty("Title");
 			Double[] size = (Double[]) holder.getProperties().get("Size");
 			Double[] position = (Double[]) holder.getProperties().get("Position");
 			boolean minimized = (boolean) holder.getProperties().getOrDefault("Minimized", false);
-			DockNode node = dockNodes.get(title);
+			DockNode node = dockNodes.get(settingName);
 			if (null == node && null != delayOpenHandler)
-				node = delayOpenHandler.open(title);
+				node = delayOpenHandler.open(settingName);
 
 			if (null != node) {
 				node.setFloating(true, null, this);
@@ -926,6 +930,8 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 
 				node.setFloating(true);
 				node.closedProperty().setValue(false);
+
+				node.setTitle(title);
 				undockedNodes.add(node);
 
 				node.setMinimized(minimized);
@@ -971,10 +977,12 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 			splitPane.setDividerPositions((double[]) holder.getProperties().get("DividerPositions"));
 
 			for (Object item : holder.getChildren()) {
-				if (item instanceof String) {
+				if (item instanceof DockNodeProperty) {
+					DockNodeProperty nodeProperty = (DockNodeProperty) item;
 					// Use dock node
-					if (dockNodes.containsKey(item)) {
-						DockNode n = dockNodes.get(item);
+					if (dockNodes.containsKey(nodeProperty.getSettingName())) {
+						DockNode n = dockNodes.get(nodeProperty.getSettingName());
+						n.setTitle(nodeProperty.getTitle());
 						if (n.tabbedProperty().get()) {
 							n.tabbedProperty().set(false);
 						}
@@ -983,20 +991,21 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 						this.dockNodeEventFilters.put(n, dockNodeEventHandler);
 						n.addEventFilter(DockEvent.DOCK_OVER, dockNodeEventHandler);
 						n.setDockPane(this);
-						splitPane.getItems().add(dockNodes.get(item));
+						splitPane.getItems().add(dockNodes.get(nodeProperty.getSettingName()));
 						n.closedProperty().setValue(false);
 					} else {
 						// If delayOpenHandler is provided, we call it
 						if (delayOpenHandler != null) {
-							DockNode newNode = delayOpenHandler.open((String) item);
+							DockNode newNode = delayOpenHandler.open(nodeProperty.getSettingName());
 							if (newNode.tabbedProperty().get()) {
 								newNode.tabbedProperty().set(false);
 							}
 
 							newNode.dockedProperty().set(true);
+							newNode.setTitle(nodeProperty.getTitle());
 							splitPane.getItems().add(newNode);
 						} else
-							System.err.println(item + " is not present.");
+							System.err.println(nodeProperty.getSettingName() + " is not present.");
 					}
 				} else if (item instanceof ContentHolder) {
 					// Call this function recursively
@@ -1010,24 +1019,27 @@ public class DockPane extends StackPane implements EventHandler<DockEvent> {
 			ContentTabPane tabPane = new ContentTabPane();
 
 			for (Object item : holder.getChildren()) {
-				if (item instanceof String) {
+				if (item instanceof DockNodeProperty) {
+					DockNodeProperty nodeProperty = (DockNodeProperty) item;
 					// Use dock node
-					if (dockNodes.containsKey(item)) {
-						DockNode n = dockNodes.get(item);
+					if (dockNodes.containsKey(nodeProperty.getSettingName())) {
+						DockNode n = dockNodes.get(nodeProperty.getSettingName());
 						DockNodeEventHandler dockNodeEventHandler = this.new DockNodeEventHandler(n);
 						this.dockNodeEventFilters.put(n, dockNodeEventHandler);
 						n.addEventFilter(DockEvent.DOCK_OVER, dockNodeEventHandler);
 						n.setDockPane(this);
-						tabPane.addDockNodeTab(new DockNodeTab(dockNodes.get(item)));
+						tabPane.addDockNodeTab(new DockNodeTab(dockNodes.get(nodeProperty.getSettingName())));
 						n.closedProperty().setValue(false);
+						n.setTitle(nodeProperty.getTitle());
 					} else {
 						// If delayOpenHandler is provided, we call it
 						if (null != delayOpenHandler) {
-							DockNode newNode = delayOpenHandler.open((String) item);
+							DockNode newNode = delayOpenHandler.open((String) nodeProperty.getSettingName());
 							newNode.dockedProperty().set(true);
+							newNode.setTitle(nodeProperty.getTitle());
 							tabPane.addDockNodeTab(new DockNodeTab(newNode));
 						} else
-							System.err.println(item + " is not present.");
+							System.err.println(nodeProperty.getSettingName() + " is not present.");
 					}
 				}
 			}
