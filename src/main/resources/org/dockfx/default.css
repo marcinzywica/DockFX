@@ -185,3 +185,7 @@
 	-fx-graphic: url(list.png);
     -fx-padding: 50.0;
 }
+
+.rename-button {
+	-fx-graphic: url(edit.png); 
+}
