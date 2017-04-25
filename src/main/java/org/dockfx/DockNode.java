@@ -1385,4 +1385,19 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		setTitle(title);
 		titleRenamed = true;
 	}
+
+	public DockNode setBackButtonToottip(String tooltip) {
+		dockTitleBar.setBackButtonToottip(tooltip);
+		return this;
+	}
+
+	public DockNode setListButtonToottip(String tooltip) {
+		dockTitleBar.setListButtonToottip(tooltip);
+		return this;
+	}
+
+	public DockNode setRenameButtonToottip(String tooltip) {
+		dockTitleBar.setRenameButtonToottip(tooltip);
+		return this;
+	}
 }

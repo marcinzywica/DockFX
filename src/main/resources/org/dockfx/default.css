@@ -153,39 +153,48 @@
  * excessively wide buttons.
  */
 .dock-title-bar .button {
-	-fx-padding: 1 4 1 4;
+	-fx-padding: 0;
+	-fx-background-color: transparent;
+}
+
+.dock-title-bar .button:hover {
+	-fx-background-color: #b6b6b6;
+}
+
+.dock-title-bar .button:pressed {
+	-fx-background-color: #3f3f3f;
 }
 
 /* Set the icons for the dock title bar's buttons here. */
 .dock-state-button {
-	-fx-graphic: url(restore.png);
+	-fx-graphic: url(gray/restore.png);
 }
 
 .dock-node:floating .dock-state-button {
-	-fx-graphic: url(maximize.png);
+	-fx-graphic: url(gray/maximize.png);
 }
 
 .dock-node:maximized .dock-state-button {
-	-fx-graphic: url(restore.png);
+	-fx-graphic: url(gray/restore.png);
 }
 
 .dock-close-button {
-	-fx-graphic: url(close.png);
+	-fx-graphic: url(gray/close.png);
 }
 
 .dock-back-button {
-	-fx-graphic: url(back.png);
+	-fx-graphic: url(gray/back.png);
 }
 
 .dock-minimize-button {
-	-fx-graphic: url(minimize.png);
+	-fx-graphic: url(gray/minimize.png);
 }
 
 .dock-list-button {
-	-fx-graphic: url(list.png);
-    -fx-padding: 50.0;
+	-fx-graphic: url(gray/list.png);
+	-fx-padding: 50.0;
 }
 
 .rename-button {
-	-fx-graphic: url(edit.png); 
+	-fx-graphic: url(gray/edit.png);
 }

@@ -38,6 +38,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -54,6 +55,7 @@ import javafx.stage.Window;
  */
 public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 
+	private final static double BUTTON_MAX_WIDTH = 15, BUTTON_MAX_HEIGHT = 15;
 	/**
 	 * The DockNode this node is a title bar for.
 	 */
@@ -132,6 +134,13 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 		listButton.getStyleClass().add("dock-list-button");
 		renameBtn.getStyleClass().add("rename-button");
 		this.getStyleClass().add("dock-title-bar");
+
+		closeButton.setMaxSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
+		stateButton.setMaxSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
+		minimizeButton.setMaxSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
+		backButton.setMaxSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
+		listButton.setMaxSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
+		renameBtn.setMaxSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
 
 		// create a pane that will stretch to make the buttons right aligned
 		Pane fillPane = new Pane();
@@ -513,5 +522,17 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 				dockPane.removeEventFilter(MouseEvent.MOUSE_RELEASED, this);
 			}
 		}
+	}
+
+	public void setBackButtonToottip(String tooltip) {
+		backButton.setTooltip(new Tooltip(tooltip));
+	}
+
+	public void setListButtonToottip(String tooltip) {
+		listButton.setTooltip(new Tooltip(tooltip));
+	}
+
+	public void setRenameButtonToottip(String tooltip) {
+		renameBtn.setTooltip(new Tooltip(tooltip));
 	}
 }
