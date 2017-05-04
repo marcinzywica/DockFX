@@ -1242,6 +1242,7 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 
 	public DockNode dockBack() {
 
+		setMaximized(false);
 		DockPos position = lastDockPos;
 		Node sibling = lastDockSibling;
 
