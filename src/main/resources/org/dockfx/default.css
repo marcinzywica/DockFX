@@ -198,3 +198,7 @@
 .rename-button {
 	-fx-graphic: url(gray/edit.png);
 }
+
+.dock-maximize-button {
+	-fx-graphic: url(gray/maximize.png);
+}
