@@ -68,7 +68,7 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 	 * State manipulation buttons including close, maximize, detach, and
 	 * restore.
 	 */
-	private final Button closeButton, stateButton, minimizeButton, backButton, listButton, renameBtn;
+	private final Button closeButton, stateButton, minimizeButton, backButton, listButton, renameBtn, maximizeButtnon;
 
 	private ContextMenu contextMenu;
 
@@ -121,6 +121,11 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 				renameAE.handle(e);
 		});
 
+		maximizeButtnon = new Button();
+		maximizeButtnon.setOnAction(e -> dockNode.setFloating(true).setMaximized(true));
+		maximizeButtnon.visibleProperty().bind(dockNode.dockedProperty());
+		maximizeButtnon.managedProperty().bind(maximizeButtnon.visibleProperty());
+
 		this.addEventHandler(MouseEvent.MOUSE_PRESSED, this);
 		this.addEventHandler(MouseEvent.DRAG_DETECTED, this);
 		this.addEventHandler(MouseEvent.MOUSE_DRAGGED, this);
@@ -133,6 +138,7 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 		backButton.getStyleClass().add("dock-back-button");
 		listButton.getStyleClass().add("dock-list-button");
 		renameBtn.getStyleClass().add("rename-button");
+		maximizeButtnon.getStyleClass().add("dock-maximize-button");
 		this.getStyleClass().add("dock-title-bar");
 
 		closeButton.setMaxSize(BUTTON_MAX_WIDTH, BUTTON_MAX_HEIGHT);
@@ -159,7 +165,7 @@ public class DockTitleBar extends HBox implements EventHandler<MouseEvent> {
 		});
 
 		getChildren().addAll(listButton, label, fillPane, backButton, renameBtn, minimizeButton, stateButton,
-				closeButton);
+				maximizeButtnon, closeButton);
 		minimizeButton.visibleProperty().bind(dockNode.floatingProperty());
 		minimizeButton.managedProperty().bind(minimizeButton.visibleProperty());
 		backButton.visibleProperty().bind(dockNode.floatingProperty());
