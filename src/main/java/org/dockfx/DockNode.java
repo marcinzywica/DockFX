@@ -548,6 +548,7 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 			stage.sizeToScene();
 
 			stage.show();
+			stage.setOnCloseRequest(r -> close());
 		} else if (!floating && this.isFloating()) {
 			this.floatingProperty.set(floating);
 			// this.setMinimizable(floating);
