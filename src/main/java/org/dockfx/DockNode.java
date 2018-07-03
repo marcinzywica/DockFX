@@ -1162,11 +1162,12 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 			sizeLast = new Point2D(event.getScreenX(), event.getScreenY());
 		} else if (event.getEventType() == MouseEvent.MOUSE_MOVED) {
 			Insets insets = borderPane.getPadding();
+			int tolerance = 6;
 
-			sizeWest = event.getX() < insets.getLeft();
-			sizeEast = event.getX() > borderPane.getWidth() - insets.getRight();
-			sizeNorth = event.getY() < insets.getTop();
-			sizeSouth = event.getY() > borderPane.getHeight() - insets.getBottom();
+			sizeWest = event.getX() < insets.getLeft() + tolerance;
+			sizeEast = event.getX() > borderPane.getWidth() - insets.getRight() - tolerance;
+			sizeNorth = event.getY() < insets.getTop() + tolerance;
+			sizeSouth = event.getY() > borderPane.getHeight() - insets.getBottom() - tolerance;
 
 			if (sizeWest) {
 				if (sizeNorth) {
