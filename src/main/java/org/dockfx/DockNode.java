@@ -20,7 +20,13 @@
 
 package org.dockfx;
 
-import javafx.stage.WindowEvent;
+import java.util.List;
+
+import org.dockfx.pane.ContentPane;
+import org.dockfx.pane.ContentPane.Type;
+import org.dockfx.pane.ContentSplitPane;
+import org.dockfx.pane.ContentTabPane;
+import org.dockfx.pane.DockNodeTab;
 import org.dockfx.viewControllers.DockFXViewController;
 
 import javafx.beans.property.BooleanProperty;
@@ -52,14 +58,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-
-import java.util.List;
-
-import org.dockfx.pane.ContentPane;
-import org.dockfx.pane.ContentPane.Type;
-import org.dockfx.pane.ContentSplitPane;
-import org.dockfx.pane.ContentTabPane;
-import org.dockfx.pane.DockNodeTab;
+import javafx.stage.WindowEvent;
 
 /**
  * Base class for a dock node that provides the layout of the content along with
@@ -440,6 +439,7 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 			}
 
 			stage = new Stage();
+			stage.setAlwaysOnTop(dockTitleBar.isAlwaysOnTop());
 
 			EventHandler<WindowEvent> mainWindowCloseHandler = dockPane.getScene().getWindow().getOnCloseRequest();
 			dockPane.getScene().getWindow().setOnCloseRequest(event -> {
@@ -1389,6 +1389,11 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 		titleRenamed = true;
 	}
 
+	public DockNode setAlwaysOnTop(boolean alwaysOnTop) {
+		dockTitleBar.setAlwaysOnTop(alwaysOnTop);
+		return this;
+	}
+
 	public DockNode setBackButtonToottip(String tooltip) {
 		dockTitleBar.setBackButtonToottip(tooltip);
 		return this;
@@ -1401,6 +1406,11 @@ public class DockNode extends VBox implements EventHandler<MouseEvent> {
 
 	public DockNode setRenameButtonToottip(String tooltip) {
 		dockTitleBar.setRenameButtonToottip(tooltip);
+		return this;
+	}
+
+	public DockNode setPinButtonTooltip(String tooltip) {
+		dockTitleBar.setPinButtonTooltip(tooltip);
 		return this;
 	}
 }
